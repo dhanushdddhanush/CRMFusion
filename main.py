@@ -105,12 +105,13 @@ def sf_get_leads_api(user_id: str):
     leads = sf_get_leads(token, instance)
     return JSONResponse(content=leads)
 @app.delete("/salesforce/delete_token")
-def delete_token(user_id: str):
+def sf_delete_token(user_id: str):
     try:
-        delete_refresh_token(user_id)
-        return JSONResponse(content={"status": f"Refresh token for user {user_id} deleted."}, status_code=200)
+        delete_refresh_token(user_id, partition_key="salesforce")
+        return JSONResponse(content={"status": f"Refresh token for user {user_id} deleted from Salesforce."}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting token: {e}")
+
 # Create Lead
 @app.post("/salesforce/create_lead")
 async def sf_create_lead_api(user_id: str, request: Request):
