@@ -1,3 +1,19 @@
+import os
+from azure.data.tables import TableServiceClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+
+
+TABLE_NAME = "UserTokens"
+
+
+table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+table_client = table_service.get_table_client(table_name=TABLE_NAME)
+
 def store_refresh_token(user_id, refresh_token, partition_key="zoho", extra_data={}):
     entity = {
         "PartitionKey": partition_key,
