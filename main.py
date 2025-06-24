@@ -4,7 +4,7 @@ from zoho_service import (
     generate_auth_url, exchange_code_for_token,
     get_access_token, get_leads, create_lead
 )
-from storage_service import store_refresh_token, get_refresh_token
+from storage_service import store_refresh_token, get_refresh_token, delete_refresh_token
 from fastapi.responses import HTMLResponse
 from salesforce_service import (
     generate_auth_url as sf_auth_url,
@@ -59,7 +59,13 @@ def get_user_leads(user_id: str):
     access_token = get_access_token(refresh_token)
     leads = get_leads(access_token)
     return JSONResponse(content=leads)
-
+@app.delete("/zoho/delete_token")
+def delete_token(user_id: str):
+    try:
+        delete_refresh_token(user_id)
+        return JSONResponse(content={"status": f"Refresh token for user {user_id} deleted."}, status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting token: {e}")
 @app.post("/zoho/create_lead")
 async def create_user_lead(user_id: str, request: Request):
     lead_data = await request.json()
@@ -98,7 +104,13 @@ def sf_get_leads_api(user_id: str):
     token, instance = sf_get_token(data["refresh_token"])
     leads = sf_get_leads(token, instance)
     return JSONResponse(content=leads)
-
+@app.delete("/salesforce/delete_token")
+def delete_token(user_id: str):
+    try:
+        delete_refresh_token(user_id)
+        return JSONResponse(content={"status": f"Refresh token for user {user_id} deleted."}, status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting token: {e}")
 # Create Lead
 @app.post("/salesforce/create_lead")
 async def sf_create_lead_api(user_id: str, request: Request):
